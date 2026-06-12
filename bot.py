@@ -69,36 +69,56 @@ async def run_setup(guild: discord.Guild, structure: list[dict]) -> str:
         log.append(msg)
         print(msg, flush=True)
 
+    # ── List current channels ──────────────────────────────────────
+    await guild.fetch_channels()
+    ll("Current channels in server:")
+    for c in guild.channels:
+        if isinstance(c, discord.CategoryChannel):
+            ll(f"  CAT \"{c.name}\" ({c.id})")
+            for sc in c.channels:
+                protected_flag = " 🔒" if sc.id in protected else ""
+                t = str(sc.type).split(".")[-1] if sc.type else "?"
+                ll(f"    #{sc.name} ({t}){protected_flag}")
+        else:
+            protected_flag = " 🔒" if c.id in protected else ""
+            t = str(c.type).split(".")[-1] if c.type else "?"
+            ll(f"  # {c.name} ({t}){protected_flag}")
+
+    # ── Phase 1: Delete everything unprotected ────────────────────
+    ll("")
+    ll("=== Deleting unprotected categories ===")
+    for cat in list(guild.categories):
+        protected_in_cat = [c for c in cat.channels if c.id in protected]
+        if protected_in_cat:
+            ll(f"  Keeping category \"{cat.name}\" (has protected channels)")
+            for ch in list(cat.channels):
+                if ch.id not in protected:
+                    try:
+                        await ch.delete()
+                        t = str(ch.type).split(".")[-1] if ch.type else "?"
+                        ll(f"  DELETED #{ch.name} ({t})")
+                    except Exception as e:
+                        ll(f"  ERROR deleting #{ch.name}: {e}")
+                        errors.append(f"Could not delete {ch.name}: {e}")
+        else:
+            try:
+                await cat.delete()
+                ll(f"  DELETED category \"{cat.name}\"")
+            except Exception as e:
+                ll(f"  ERROR deleting category \"{cat.name}\": {e}")
+                errors.append(f"Could not delete category {cat.name}: {e}")
+
+    await guild.fetch_channels()
+    await asyncio.sleep(1)
+
+    # ── Phase 2: Create everything from plan ───────────────────────
+    ll("")
+    ll("=== Creating from plan ===")
     for cat_data in structure:
         cat_name = cat_data["name"]
         channels = cat_data.get("channels", [])
 
         existing_cat = discord.utils.get(guild.categories, name=cat_name)
-
-        if existing_cat:
-            protected_in_cat = [c for c in existing_cat.channels if c.id in protected]
-            if protected_in_cat:
-                ll(f"  Category \"{cat_name}\" has protected channels, deleting unprotected only")
-                for ch in existing_cat.channels:
-                    if ch.id not in protected:
-                        try:
-                            ch_type_name = str(ch.type).split(".")[-1] if ch.type else "?"
-                            await ch.delete()
-                            ll(f"  DELETED #{ch.name} ({ch_type_name})")
-                        except Exception as e:
-                            ll(f"  ERROR deleting #{ch.name}: {e}")
-                            errors.append(f"Could not delete {ch.name}: {e}")
-                await guild.fetch_channels()
-                existing_cat = discord.utils.get(guild.categories, name=cat_name)
-            else:
-                try:
-                    await existing_cat.delete()
-                    ll(f"  DELETED category \"{cat_name}\"")
-                    existing_cat = None
-                except Exception as e:
-                    ll(f"  ERROR deleting category \"{cat_name}\": {e}")
-                    errors.append(f"Could not delete category {cat_name}: {e}")
-                    continue
 
         if existing_cat is None:
             try:
@@ -115,9 +135,7 @@ async def run_setup(guild: discord.Guild, structure: list[dict]) -> str:
             ch_type_label = ch.get("type", "text").lower()
             ch_type = TYPE_MAP.get(ch_type_label, discord.ChannelType.text)
 
-            is_protected = any(c.id in protected for c in existing_cat.channels)
             existing = discord.utils.get(existing_cat.channels, name=ch_name)
-
             if existing and existing.id in protected:
                 ll(f"  SKIPPED #{ch_name} (protected)")
                 continue
@@ -125,7 +143,7 @@ async def run_setup(guild: discord.Guild, structure: list[dict]) -> str:
             if existing:
                 try:
                     await existing.delete()
-                    ll(f"  DELETED #{ch_name} (recreate)")
+                    ll(f"  DELETED #{ch_name} (will recreate)")
                 except Exception as e:
                     ll(f"  ERROR deleting #{ch_name}: {e}")
                     errors.append(f"Could not delete {ch_name}: {e}")
