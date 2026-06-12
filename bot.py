@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 import json
 import os
+import sys
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -21,12 +22,21 @@ class BotClient(discord.Client):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
 
-    async def setup_hook(self):
-        self.tree.add_command(setup_cmd)
-        await self.tree.sync(guild=discord.Object(id=GUILD_ID))
-
     async def on_ready(self):
-        print(f"Bot online as {self.user}")
+        print(f"Bot online as {self.user}", flush=True)
+        print(f"In {len(self.guilds)} guild(s)", flush=True)
+        for g in self.guilds:
+            print(f"  Guild: {g.name} ({g.id})", flush=True)
+            if g.id == GUILD_ID:
+                print("  -> GUILD_ID matches!", flush=True)
+
+        try:
+            synced = await self.tree.sync(guild=discord.Object(id=GUILD_ID))
+            print(f"Synced {len(synced)} command(s)", flush=True)
+            for cmd in synced:
+                print(f"  - /{cmd.name}", flush=True)
+        except Exception as e:
+            print(f"Sync failed: {e}", flush=True)
 
 
 client = BotClient()
@@ -71,7 +81,7 @@ setup_cmd = app_commands.Command(
     callback=setup_server,
 )
 setup_cmd.default_permissions = discord.Permissions(administrator=True)
-
+client.tree.add_command(setup_cmd)
 
 if __name__ == "__main__":
     if not TOKEN:
