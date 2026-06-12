@@ -1,88 +1,91 @@
 # Discord Server Builder Bot
 
-Bot Discord que cria automaticamente categorias e canais a partir de um ficheiro Markdown.
+A Discord bot that automatically creates categories and channels from a JSON template file.
 
-## Como usar
+## How to use
 
-### 1. Criar o bot no Discord Developer Portal
+### 1. Create the bot on Discord Developer Portal
 
-1. Vai a https://discord.com/developers/applications
-2. **New Application** → dá um nome ao bot
-3. Aba **Bot** → **Add Bot** → copia o **Token**
-4. Aba **OAuth2 > URL Generator**:
+1. Go to https://discord.com/developers/applications
+2. Click **New Application** and give it a name
+3. Go to **Bot** tab → **Add Bot** → copy the **Token**
+4. Go to **OAuth2 > URL Generator**:
    - Scopes: `bot`
    - Permissions: `Manage Channels`
-5. Abre o link gerado para convidar o bot para o teu servidor
+5. Open the generated URL to invite the bot to your server
 
-### 2. Configurar
+### 2. Setup
 
 ```bash
-# Instalar dependências
+# Install dependencies
 pip install -r requirements.txt
 
-# Criar ficheiro de configuração
+# Create config file
 cp .env.example .env
 ```
 
-Preenche o `.env`:
+Fill in the `.env` file:
 
 ```
-DISCORD_TOKEN=token_que_copiaste
-GUILD_ID=id_do_teu_servidor
+DISCORD_TOKEN=your_bot_token_here
+GUILD_ID=your_server_id_here
 ```
 
-> Para obter o `GUILD_ID`: ativa o **Modo de Programador** no Discord (Definições > Avançado), clica com o botão direito no nome do servidor → **Copiar ID do Servidor**.
+> To get the `GUILD_ID`: enable **Developer Mode** in Discord (Settings > Advanced), right-click your server name → **Copy Server ID**.
 
-### 3. Executar
+### 3. Edit the template
+
+Edit `server-template.json` to match the server structure you want. See the format below.
+
+### 4. Run
 
 ```bash
 python bot.py
 ```
 
-No Discord, usa o comando:
+In Discord, use the command:
 
 ```
-/criarservidor
+/setup-server
 ```
 
-O bot cria todas as categorias e canais definidos em `estrutura-servidor-discord.md` que ainda não existirem no servidor.
+The bot will create all categories and channels defined in `server-template.json` that don't already exist in the server.
 
-## Estrutura do projeto
+## Project structure
 
 ```
-├── bot.py                          # Bot principal
-├── requirements.txt                # Dependências Python
-├── .env.example                    # Template de configuração
+├── bot.py                          # Main bot script
+├── server-template.json            # Server structure template (edit this)
+├── requirements.txt                # Python dependencies
+├── .env.example                    # Config template
 ├── .gitignore
-├── estrutura-servidor-discord.md   # Estrutura do servidor (categorias e canais)
-├── plano-bot-criacao-canais.md     # Plano original do projeto
+├── estrutura-servidor-discord.md   # Original server structure (reference only)
+├── plano-bot-criacao-canais.md     # Original project plan (Portuguese)
 └── README.md
 ```
 
-## Formato do ficheiro de estrutura
+## Template format (`server-template.json`)
 
-O bot lê o `estrutura-servidor-discord.md` que deve seguir este formato:
+The bot reads a JSON file with the following structure:
 
-```markdown
-## 📋 Categoria: WishList
-
-- `#roupas`
-- `#jogos`
-
-## 💬 Categoria: Geral
-
-- 🔊 `Voz Geral` (canal de voz)
-- `#chat`
-- `#memes`
+```json
+[
+  {
+    "name": "Category Name",
+    "channels": [
+      { "name": "channel-name", "type": "text" },
+      { "name": "Voice Channel", "type": "voice" }
+    ]
+  }
+]
 ```
 
-- `## Nome` → cria uma categoria
-- `` - `#canal` `` → cria um canal de texto
-- `- 🔊 Nome` → cria um canal de voz
-- Linhas `>`, `---` e secção "Notas extra" são ignoradas
+- `name` (category): the category name displayed in Discord (emojis supported)
+- `channels`: list of channels in that category
+  - `name`: the channel name
+  - `type`: `"text"` for text channels, `"voice"` for voice channels
 
-## Segurança
+## Security
 
-O comando `/criarservidor` só pode ser usado por administradores do servidor.
-Nunca partilhes o ficheiro `.env` (contém o token do bot).
-
+The `/setup-server` command is restricted to server administrators.
+Never share the `.env` file (it contains your bot token).
