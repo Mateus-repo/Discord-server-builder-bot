@@ -64,7 +64,7 @@ class BotClient(discord.Client):
             if g.id == GUILD_ID:
                 print("  -> GUILD_ID matches", flush=True)
 
-        cmd_data = setup_cmd.to_dict()
+        cmd_data = setup_cmd.to_dict(self.tree)
         success = False
 
         try:
