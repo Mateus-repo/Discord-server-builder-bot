@@ -4,7 +4,10 @@ import json
 import os
 import asyncio
 import re
+import sys
 from dotenv import load_dotenv
+
+sys.stdout.reconfigure(encoding="utf-8")
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
