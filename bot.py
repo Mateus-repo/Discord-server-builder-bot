@@ -1,5 +1,6 @@
 import discord
 from discord import app_commands
+from discord.http import Route
 import json
 import os
 import sys
@@ -14,32 +15,6 @@ TEMPLATE_FILE = "server-template.json"
 def load_template(filepath: str) -> list[dict]:
     with open(filepath, "r", encoding="utf-8") as f:
         return json.load(f)
-
-
-class BotClient(discord.Client):
-    def __init__(self):
-        intents = discord.Intents.default()
-        super().__init__(intents=intents)
-        self.tree = app_commands.CommandTree(self)
-
-    async def on_ready(self):
-        print(f"Bot online as {self.user}", flush=True)
-        print(f"In {len(self.guilds)} guild(s)", flush=True)
-        for g in self.guilds:
-            print(f"  Guild: {g.name} ({g.id})", flush=True)
-            if g.id == GUILD_ID:
-                print("  -> GUILD_ID matches!", flush=True)
-
-        try:
-            synced = await self.tree.sync(guild=discord.Object(id=GUILD_ID))
-            print(f"Synced {len(synced)} command(s)", flush=True)
-            for cmd in synced:
-                print(f"  - /{cmd.name}", flush=True)
-        except Exception as e:
-            print(f"Sync failed: {e}", flush=True)
-
-
-client = BotClient()
 
 
 async def setup_server(interaction: discord.Interaction):
@@ -74,6 +49,72 @@ async def setup_server(interaction: discord.Interaction):
         ephemeral=True,
     )
 
+
+class BotClient(discord.Client):
+    def __init__(self):
+        intents = discord.Intents.default()
+        super().__init__(intents=intents)
+        self.tree = app_commands.CommandTree(self)
+
+    async def on_ready(self):
+        print(f"Bot online as {self.user}", flush=True)
+        print(f"In {len(self.guilds)} guild(s)", flush=True)
+        for g in self.guilds:
+            print(f"  Guild: \"{g.name}\" ({g.id})", flush=True)
+            if g.id == GUILD_ID:
+                print("  -> GUILD_ID matches", flush=True)
+
+        cmd_data = setup_cmd.to_dict()
+        success = False
+
+        try:
+            synced = await self.tree.sync(guild=discord.Object(id=GUILD_ID))
+            print(f"  guild sync: {len(synced)} command(s)", flush=True)
+            success = len(synced) > 0
+        except Exception as e:
+            print(f"  guild sync error: {e}", flush=True)
+
+        if not success:
+            try:
+                synced = await self.tree.sync()
+                print(f"  global sync: {len(synced)} command(s)", flush=True)
+                success = len(synced) > 0
+            except Exception as e:
+                print(f"  global sync error: {e}", flush=True)
+
+        if not success:
+            try:
+                await self.http.request(
+                    Route("PUT",
+                          "/applications/{app_id}/guilds/{guild_id}/commands",
+                          app_id=self.user.id, guild_id=GUILD_ID),
+                    json=[cmd_data],
+                )
+                print("  direct API (guild): done", flush=True)
+                success = True
+            except Exception as e:
+                print(f"  direct API (guild) error: {e}", flush=True)
+
+        if not success:
+            try:
+                await self.http.request(
+                    Route("PUT",
+                          "/applications/{app_id}/commands",
+                          app_id=self.user.id),
+                    json=[cmd_data],
+                )
+                print("  direct API (global): done", flush=True)
+                success = True
+            except Exception as e:
+                print(f"  direct API (global) error: {e}", flush=True)
+
+        if success:
+            print("Slash command registered!", flush=True)
+        else:
+            print("All registration methods failed!", flush=True)
+
+
+client = BotClient()
 
 setup_cmd = app_commands.Command(
     name="setup-server",
