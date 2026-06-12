@@ -159,9 +159,9 @@ async def help_fn(interaction: discord.Interaction):
         color=discord.Color.blue(),
     )
     embed.add_field(
-        name="/setup-server [plan]",
+        name="/setup-server [plan] [file]",
         value="Create categories and channels from a JSON plan.\n"
-              "Pass the plan as a JSON code block or inline.",
+              "Pass the plan as text or upload a `.json` file.",
         inline=False,
     )
     embed.add_field(
@@ -192,10 +192,28 @@ async def help_fn(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-@app_commands.describe(plan="JSON plan with categories and channels")
-async def setup_fn(interaction: discord.Interaction, plan: str):
+@app_commands.describe(
+    plan="JSON plan with categories and channels (or leave empty if using file)",
+    file="Upload a .json file with the server plan instead of typing it",
+)
+async def setup_fn(
+    interaction: discord.Interaction,
+    plan: str = None,
+    file: discord.Attachment = None,
+):
+    if file:
+        raw = (await file.read()).decode("utf-8")
+    elif plan:
+        raw = plan
+    else:
+        await interaction.response.send_message(
+            "Provide a JSON plan as text or upload a `.json` file.",
+            ephemeral=True,
+        )
+        return
+
     try:
-        structure = parse_plan(plan)
+        structure = parse_plan(raw)
     except json.JSONDecodeError as e:
         await interaction.response.send_message(
             f"Invalid JSON plan: {e}", ephemeral=True
