@@ -1,0 +1,25 @@
+[
+  {
+    "name": "💬 General",
+    "channels": [
+      { "name": "chat", "type": "text" },
+      { "name": "announcements", "type": "announcement" },
+      { "name": "General Voice", "type": "voice" }
+    ]
+  },
+  {
+    "name": "🎮 Gaming",
+    "channels": [
+      { "name": "game-chat", "type": "text" },
+      { "name": "looking-for-group", "type": "text" },
+      { "name": "Game Voice", "type": "voice" }
+    ]
+  },
+  {
+    "name": "📸 Media & Art",
+    "channels": [
+      { "name": "fan-art", "type": "forum" },
+      { "name": "clips", "type": "forum" }
+    ]
+  }
+]
