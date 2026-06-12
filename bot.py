@@ -42,17 +42,18 @@ def parse_plan(plan_str: str) -> list[dict]:
 
 
 async def create_channel(category, name: str, ch_type: discord.ChannelType):
+    guild = category.guild
     if ch_type == discord.ChannelType.text:
-        return await category.create_text_channel(name)
+        return await guild.create_text_channel(name, category=category)
     elif ch_type == discord.ChannelType.voice:
-        return await category.create_voice_channel(name)
+        return await guild.create_voice_channel(name, category=category)
     elif ch_type == discord.ChannelType.forum:
-        return await category.create_forum_channel(name)
+        return await guild.create_forum_channel(name, category=category)
     elif ch_type == discord.ChannelType.news:
-        return await category.create_text_channel(name, news=True)
+        return await guild.create_text_channel(name, category=category, news=True)
     elif ch_type == discord.ChannelType.stage_voice:
-        return await category.create_stage_channel(name)
-    return await category.create_text_channel(name)
+        return await guild.create_stage_channel(name, category=category)
+    return await guild.create_text_channel(name, category=category)
 
 
 async def run_setup(guild: discord.Guild, structure: list[dict]) -> str:
@@ -113,7 +114,7 @@ async def run_setup(guild: discord.Guild, structure: list[dict]) -> str:
                     await create_channel(existing_cat, ch_name, ch_type)
                     created += 1
                     break
-                except (discord.HTTPException, discord.ServerDisconnectedError) as e:
+                except Exception as e:
                     if attempt < 2:
                         await asyncio.sleep(2 ** attempt)
                     else:
