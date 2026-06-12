@@ -1,6 +1,5 @@
 import discord
 from discord import app_commands
-from discord.http import Route
 import json
 import os
 import asyncio
@@ -137,49 +136,16 @@ class BotClient(discord.Client):
         for g in self.guilds:
             print(f"  Guild: \"{g.name}\" ({g.id})", flush=True)
 
-        cmd_data = [
-            help_cmd.to_dict(self.tree),
-            setup_cmd.to_dict(self.tree),
-            protect_cmd.to_dict(self.tree),
-            unprotect_cmd.to_dict(self.tree),
-            list_protected_cmd.to_dict(self.tree),
-        ]
-
-        success = False
-        for label, route_args in [
-            ("guild sync", ("guild",)),
-            ("direct API guild", None),
-        ]:
+        try:
+            synced = await self.tree.sync()
+            print(f"  Registered {len(synced)} command(s) globally", flush=True)
+        except Exception as e:
+            print(f"  Sync error: {e}", flush=True)
             try:
-                if label == "guild sync":
-                    synced = await self.tree.sync(guild=discord.Object(id=GUILD_ID))
-                    if synced:
-                        print(f"  guild sync: {len(synced)} command(s)", flush=True)
-                        success = True
-                        break
-                else:
-                    await self.http.request(
-                        Route("PUT",
-                              "/applications/{app_id}/guilds/{guild_id}/commands",
-                              app_id=self.user.id, guild_id=GUILD_ID),
-                        json=cmd_data,
-                    )
-                    print("  direct API: done", flush=True)
-                    success = True
-                    break
-            except Exception as e:
-                print(f"  {label}: {e}", flush=True)
-
-        if not success:
-            try:
-                await self.tree.sync()
-                print("  global sync fallback: done", flush=True)
-                success = True
-            except Exception as e:
-                print(f"  global sync: {e}", flush=True)
-
-        if success:
-            print("Commands registered!", flush=True)
+                synced = await self.tree.sync(guild=discord.Object(id=GUILD_ID))
+                print(f"  Registered {len(synced)} command(s) to guild", flush=True)
+            except Exception as e2:
+                print(f"  Guild sync also failed: {e2}", flush=True)
 
 
 client = BotClient()
