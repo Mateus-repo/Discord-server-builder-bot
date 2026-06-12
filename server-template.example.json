@@ -1,0 +1,9 @@
+[
+  {
+    "name": "📁 Example Category",
+    "channels": [
+      { "name": "general", "type": "text" },
+      { "name": "voice-chat", "type": "voice" }
+    ]
+  }
+]

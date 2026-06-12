@@ -33,9 +33,14 @@ GUILD_ID=your_server_id_here
 
 > To get the `GUILD_ID`: enable **Developer Mode** in Discord (Settings > Advanced), right-click your server name → **Copy Server ID**.
 
-### 3. Edit the template
+### 3. Create your server template
 
-Edit `server-template.json` to match the server structure you want. See the format below.
+```bash
+# Copy the example template to get started
+cp server-template.example.json server-template.json
+```
+
+Then edit `server-template.json` with your desired structure. See the format below.
 
 ### 4. Run
 
