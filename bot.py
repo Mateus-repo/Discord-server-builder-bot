@@ -22,10 +22,20 @@ class BotClient(discord.Client):
         self.tree = app_commands.CommandTree(self)
 
     async def setup_hook(self):
-        await self.tree.sync(guild=discord.Object(id=GUILD_ID))
+        try:
+            synced = await self.tree.sync(guild=discord.Object(id=GUILD_ID))
+            print(f"Synced {len(synced)} command(s) to guild {GUILD_ID}")
+        except Exception as e:
+            print(f"Error syncing commands: {e}")
 
     async def on_ready(self):
         print(f"Bot logged in as {self.user}")
+        print(f"Bot is in {len(self.guilds)} guild(s)")
+        try:
+            synced = await self.tree.sync(guild=discord.Object(id=GUILD_ID))
+            print(f"Synced {len(synced)} command(s) to guild {GUILD_ID}")
+        except Exception as e:
+            print(f"Error syncing commands on_ready: {e}")
 
 
 client = BotClient()
