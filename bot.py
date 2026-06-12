@@ -22,7 +22,6 @@ class BotClient(discord.Client):
         self.tree = app_commands.CommandTree(self)
 
     async def setup_hook(self):
-        self.tree.add_command(setup_server)
         await self.tree.sync(guild=discord.Object(id=GUILD_ID))
 
     async def on_ready(self):
@@ -34,7 +33,7 @@ client = BotClient()
 
 @client.tree.command(
     name="setup-server",
-    description="Create all categories and channels from the server template file",
+    description="Delete all categories and recreate from the server template file",
 )
 @app_commands.default_permissions(administrator=True)
 async def setup_server(interaction: discord.Interaction):
@@ -43,35 +42,29 @@ async def setup_server(interaction: discord.Interaction):
     structure = load_template(TEMPLATE_FILE)
     guild = interaction.guild
 
+    for category in guild.categories:
+        await category.delete()
+
     created = 0
-    skipped = 0
 
     for category_data in structure:
         cat_name = category_data["name"]
         channels = category_data.get("channels", [])
 
-        category = discord.utils.get(guild.categories, name=cat_name)
-        if category is None:
-            category = await guild.create_category(cat_name)
-            created += 1
-        else:
-            skipped += 1
+        category = await guild.create_category(cat_name)
+        created += 1
 
         for ch in channels:
-            existing = discord.utils.get(category.channels, name=ch["name"])
-            if existing is None:
-                if ch["type"] == "voice":
-                    await category.create_voice_channel(ch["name"])
-                else:
-                    await category.create_text_channel(ch["name"])
-                created += 1
+            if ch["type"] == "voice":
+                await category.create_voice_channel(ch["name"])
             else:
-                skipped += 1
+                await category.create_text_channel(ch["name"])
+            created += 1
 
     await interaction.followup.send(
         f"**Setup complete!**\n"
-        f"- {created} items created\n"
-        f"- {skipped} items already exist (skipped)",
+        f"- All existing categories deleted\n"
+        f"- {created} items created from template",
         ephemeral=True,
     )
 
