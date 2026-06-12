@@ -51,7 +51,7 @@ async def create_channel(category, name: str, ch_type: discord.ChannelType):
     elif ch_type == discord.ChannelType.voice:
         return await guild.create_voice_channel(name, category=category)
     elif ch_type == discord.ChannelType.forum:
-        return await guild.create_forum_channel(name, category=category)
+        return await guild.create_forum(name, category=category)
     elif ch_type == discord.ChannelType.news:
         return await guild.create_text_channel(name, category=category, news=True)
     elif ch_type == discord.ChannelType.stage_voice:
@@ -63,6 +63,11 @@ async def run_setup(guild: discord.Guild, structure: list[dict]) -> str:
     protected = load_protected()
     created = 0
     errors = []
+    log = []
+
+    def ll(msg: str):
+        log.append(msg)
+        print(msg, flush=True)
 
     for cat_data in structure:
         cat_name = cat_data["name"]
@@ -73,54 +78,71 @@ async def run_setup(guild: discord.Guild, structure: list[dict]) -> str:
         if existing_cat:
             protected_in_cat = [c for c in existing_cat.channels if c.id in protected]
             if protected_in_cat:
+                ll(f"  Category \"{cat_name}\" has protected channels, deleting unprotected only")
                 for ch in existing_cat.channels:
                     if ch.id not in protected:
                         try:
+                            ch_type_name = str(ch.type).split(".")[-1] if ch.type else "?"
                             await ch.delete()
+                            ll(f"  DELETED #{ch.name} ({ch_type_name})")
                         except Exception as e:
+                            ll(f"  ERROR deleting #{ch.name}: {e}")
                             errors.append(f"Could not delete {ch.name}: {e}")
+                await guild.fetch_channels()
+                existing_cat = discord.utils.get(guild.categories, name=cat_name)
             else:
                 try:
                     await existing_cat.delete()
+                    ll(f"  DELETED category \"{cat_name}\"")
                     existing_cat = None
                 except Exception as e:
+                    ll(f"  ERROR deleting category \"{cat_name}\": {e}")
                     errors.append(f"Could not delete category {cat_name}: {e}")
                     continue
 
         if existing_cat is None:
             try:
                 existing_cat = await guild.create_category(cat_name)
+                ll(f"  CREATED category \"{cat_name}\"")
                 created += 1
             except Exception as e:
+                ll(f"  ERROR creating category \"{cat_name}\": {e}")
                 errors.append(f"Could not create category {cat_name}: {e}")
                 continue
 
         for ch in channels:
             ch_name = ch["name"]
-            ch_type = TYPE_MAP.get(ch.get("type", "text").lower(), discord.ChannelType.text)
+            ch_type_label = ch.get("type", "text").lower()
+            ch_type = TYPE_MAP.get(ch_type_label, discord.ChannelType.text)
 
             is_protected = any(c.id in protected for c in existing_cat.channels)
             existing = discord.utils.get(existing_cat.channels, name=ch_name)
 
             if existing and existing.id in protected:
+                ll(f"  SKIPPED #{ch_name} (protected)")
                 continue
 
             if existing:
                 try:
                     await existing.delete()
+                    ll(f"  DELETED #{ch_name} (recreate)")
                 except Exception as e:
+                    ll(f"  ERROR deleting #{ch_name}: {e}")
                     errors.append(f"Could not delete {ch_name}: {e}")
                     continue
 
             for attempt in range(3):
                 try:
                     await create_channel(existing_cat, ch_name, ch_type)
+                    ll(f"  CREATED #{ch_name} ({ch_type_label})")
                     created += 1
                     break
                 except Exception as e:
                     if attempt < 2:
+                        ll(f"  RETRY #{ch_name} (attempt {attempt + 2})")
                         await asyncio.sleep(2 ** attempt)
                     else:
+                        ll(f"  ERROR creating #{ch_name}: {e}")
                         errors.append(f"Could not create {ch_name}: {e}")
 
     parts = [f"**Setup complete!**\n- {created} items created"]
