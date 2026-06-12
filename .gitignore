@@ -2,3 +2,5 @@ plano-bot-criacao-canais.md
 estrutura-servidor-discord.md
 .env
 server-template.json
+protected-channels.json
+__pycache__/
