@@ -86,7 +86,23 @@ async def run_setup(guild: discord.Guild, structure: list[dict]) -> str:
 
     # ── Phase 1: Delete everything unprotected ────────────────────
     ll("")
-    ll("=== Deleting unprotected categories ===")
+    ll("=== Deleting all unprotected channels ===")
+
+    # Delete loose channels (not in any category)
+    for ch in list(guild.channels):
+        if ch.id in protected:
+            continue
+        if isinstance(ch, discord.CategoryChannel):
+            continue
+        try:
+            t = str(ch.type).split(".")[-1] if ch.type else "?"
+            await ch.delete()
+            ll(f"  DELETED #{ch.name} ({t})")
+        except Exception as e:
+            ll(f"  ERROR deleting #{ch.name}: {e}")
+            errors.append(f"Could not delete {ch.name}: {e}")
+
+    # Delete categories (and their channels) if they have no protected channels
     for cat in list(guild.categories):
         protected_in_cat = [c for c in cat.channels if c.id in protected]
         if protected_in_cat:
@@ -266,7 +282,15 @@ async def setup_fn(
 
     await interaction.response.defer(ephemeral=True)
     result = await run_setup(interaction.guild, structure)
-    await interaction.followup.send(result, ephemeral=True)
+    try:
+        await interaction.followup.send(result, ephemeral=True)
+    except discord.NotFound:
+        # Interaction channel was deleted during setup; fallback to a visible channel
+        target = interaction.guild.system_channel or discord.utils.get(
+            interaction.guild.text_channels
+        )
+        if target:
+            await target.send(result)
 
 
 @app_commands.describe(channel_id="Channel ID or #mention to protect")
