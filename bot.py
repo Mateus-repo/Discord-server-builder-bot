@@ -22,30 +22,16 @@ class BotClient(discord.Client):
         self.tree = app_commands.CommandTree(self)
 
     async def setup_hook(self):
-        try:
-            synced = await self.tree.sync(guild=discord.Object(id=GUILD_ID))
-            print(f"Synced {len(synced)} command(s) to guild {GUILD_ID}")
-        except Exception as e:
-            print(f"Error syncing commands: {e}")
+        self.tree.add_command(setup_cmd)
+        await self.tree.sync(guild=discord.Object(id=GUILD_ID))
 
     async def on_ready(self):
-        print(f"Bot logged in as {self.user}")
-        print(f"Bot is in {len(self.guilds)} guild(s)")
-        try:
-            synced = await self.tree.sync(guild=discord.Object(id=GUILD_ID))
-            print(f"Synced {len(synced)} command(s) to guild {GUILD_ID}")
-        except Exception as e:
-            print(f"Error syncing commands on_ready: {e}")
+        print(f"Bot online as {self.user}")
 
 
 client = BotClient()
 
 
-@client.tree.command(
-    name="setup-server",
-    description="Delete all categories and recreate from the server template file",
-)
-@app_commands.default_permissions(administrator=True)
 async def setup_server(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True)
 
@@ -77,6 +63,14 @@ async def setup_server(interaction: discord.Interaction):
         f"- {created} items created from template",
         ephemeral=True,
     )
+
+
+setup_cmd = app_commands.Command(
+    name="setup-server",
+    description="Delete all categories and recreate from the server template file",
+    callback=setup_server,
+)
+setup_cmd.default_permissions = discord.Permissions(administrator=True)
 
 
 if __name__ == "__main__":
