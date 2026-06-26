@@ -1,25 +1,134 @@
 [
   {
-    "name": "💬 General",
+    "name": "📋 Categoria: WishList",
     "channels": [
+      { "name": "roupas", "type": "text" },
+      { "name": "jogos", "type": "text" },
+      { "name": "places-we-would-like-to-go", "type": "text" },
+      { "name": "eletronicos", "type": "text" },
+      { "name": "miscellaneous", "type": "text" }
+    ]
+  },
+  {
+    "name": "🍳 Categoria: Comida & Receitas",
+    "channels": [
+      { "name": "comidas-para-experimentar", "type": "forum" },
+      { "name": "receitas", "type": "forum" },
+      { "name": "ideias-de-receitas", "type": "forum" },
+      { "name": "receitas-feitas", "type": "forum" },
+      { "name": "restaurantes", "type": "text" },
+      { "name": "promocoes-comida", "type": "text" }
+    ]
+  },
+  {
+    "name": "🖥️ Categoria: Pc-Stuff",
+    "channels": [
+      { "name": "teclados", "type": "forum" },
+      { "name": "ratos", "type": "forum" },
+      { "name": "monitores", "type": "forum" },
+      { "name": "pre-builds", "type": "forum" },
+      { "name": "builds-custom", "type": "forum" },
+      { "name": "headsets-audio", "type": "forum" },
+      { "name": "cadeiras-mesas", "type": "forum" },
+      { "name": "perifericos-diversos", "type": "forum" }
+    ]
+  },
+  {
+    "name": "🎨 Categoria: Desenhos",
+    "channels": [
+      { "name": "camadas", "type": "forum" },
+      { "name": "texturas", "type": "forum" },
+      { "name": "ideias", "type": "forum" },
+      { "name": "inspiracoes", "type": "forum" },
+      { "name": "lore", "type": "forum" },
+      { "name": "referencias", "type": "forum" },
+      { "name": "wip", "type": "forum" }
+    ]
+  },
+  {
+    "name": "🏷️ Categoria: Promoções",
+    "channels": [
+      { "name": "jogos", "type": "text" },
+      { "name": "roupa", "type": "text" },
+      { "name": "tech-pc-stuff", "type": "text" },
+      { "name": "viagens", "type": "text" }
+    ]
+  },
+  {
+    "name": "🎮 Categoria: Jogos",
+    "channels": [
+      { "name": "para-jogar-juntos", "type": "text" },
+      { "name": "sugestoes-watchlist", "type": "forum" },
+      { "name": "co-op", "type": "text" },
+      { "name": "reviews-opinioes", "type": "forum" }
+    ]
+  },
+  {
+    "name": "💼 Categoria: Projetos & Trabalho",
+    "channels": [
+      { "name": "geral", "type": "text" },
+      { "name": "projetos-em-conjunto", "type": "forum" },
+      { "name": "projeto-nome", "type": "forum" },
+      { "name": "projetos-pessoais-nome1", "type": "forum" },
+      { "name": "projetos-pessoais-nome2", "type": "forum" },
+      { "name": "to-do-tarefas", "type": "text" },
+      { "name": "recursos-links", "type": "text" },
+      { "name": "brainstorm-ideias", "type": "forum" }
+    ]
+  },
+  {
+    "name": "🎬 Categoria: Entretenimento",
+    "channels": [
+      { "name": "filmes", "type": "forum" },
+      { "name": "series", "type": "forum" },
+      { "name": "animes", "type": "forum" },
+      { "name": "mangas-manhwas", "type": "forum" },
+      { "name": "livros", "type": "forum" },
+      { "name": "watchlist-conjunta", "type": "text" },
+      { "name": "reviews-opinioes", "type": "forum" }
+    ]
+  },
+  {
+    "name": "❤️ Categoria: Memórias",
+    "channels": [
+      { "name": "fotos", "type": "forum" },
+      { "name": "videos", "type": "forum" },
+      { "name": "datas-especiais", "type": "text" },
+      { "name": "mensagens-fofas", "type": "text" }
+    ]
+  },
+  {
+    "name": "🔒 Categoria: Privado / Intimidade",
+    "channels": [
+      { "name": "sex-tips", "type": "text" },
+      { "name": "sex-ideas", "type": "text" },
+      { "name": "fetiches", "type": "text" },
+      { "name": "date-night-ideas", "type": "text" }
+    ]
+  },
+  {
+    "name": "📅 Categoria: Planeamento",
+    "channels": [
+      { "name": "calendario-eventos", "type": "text" },
+      { "name": "to-do-lists", "type": "text" },
+      { "name": "orcamento-financas", "type": "text" }
+    ]
+  },
+  {
+    "name": "💬 Categoria: Geral",
+    "channels": [
+      { "name": "Voz Geral", "type": "voice" },
       { "name": "chat", "type": "text" },
-      { "name": "announcements", "type": "announcement" },
-      { "name": "General Voice", "type": "voice" }
-    ]
-  },
-  {
-    "name": "🎮 Gaming",
-    "channels": [
-      { "name": "game-chat", "type": "text" },
-      { "name": "looking-for-group", "type": "text" },
-      { "name": "Game Voice", "type": "voice" }
-    ]
-  },
-  {
-    "name": "📸 Media & Art",
-    "channels": [
-      { "name": "fan-art", "type": "forum" },
-      { "name": "clips", "type": "forum" }
+      { "name": "memes", "type": "forum" },
+      { "name": "imagens-funny", "type": "text" },
+      { "name": "clipes", "type": "text" },
+      { "name": "videos", "type": "forum" },
+      { "name": "tutoriais", "type": "text" },
+      { "name": "musica", "type": "text" },
+      { "name": "cenas-aleatorias", "type": "text" },
+      { "name": "mudae", "type": "text" },
+      { "name": "gachapon", "type": "text" },
+      { "name": "comandos", "type": "text" }
     ]
   }
 ]

@@ -4,3 +4,4 @@ estrutura-servidor-discord.md
 server-template.json
 protected-channels.json
 __pycache__/
+servers/

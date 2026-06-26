@@ -5,6 +5,7 @@ import os
 import asyncio
 import re
 import sys
+from datetime import datetime
 from dotenv import load_dotenv
 
 sys.stdout.reconfigure(encoding="utf-8")
@@ -356,6 +357,133 @@ async def list_protected_fn(interaction: discord.Interaction):
     )
 
 
+def _channel_type_str(channel) -> str:
+    if isinstance(channel, discord.TextChannel):
+        return "announcement" if channel.is_news() else "text"
+    elif isinstance(channel, discord.VoiceChannel):
+        return "voice"
+    elif isinstance(channel, discord.ForumChannel):
+        return "forum"
+    elif isinstance(channel, discord.StageChannel):
+        return "stage"
+    return "text"
+
+
+def _build_json_structure(guild: discord.Guild) -> list[dict]:
+    structure = []
+    for category in guild.categories:
+        cat_entry: dict[str, object] = {"name": category.name, "channels": []}
+        for channel in category.channels:
+            cat_entry["channels"].append({
+                "name": channel.name,
+                "type": _channel_type_str(channel),
+            })
+        structure.append(cat_entry)
+
+    loose = [
+        c
+        for c in guild.channels
+        if not isinstance(c, discord.CategoryChannel) and c.category is None
+    ]
+    if loose:
+        loose_entry: dict[str, object] = {"name": "📂 Sem Categoria", "channels": []}
+        for channel in loose:
+            loose_entry["channels"].append({
+                "name": channel.name,
+                "type": _channel_type_str(channel),
+            })
+        structure.append(loose_entry)
+
+    return structure
+
+
+def _build_md_structure(guild: discord.Guild) -> str:
+    lines = [
+        f"# 🏠 Estrutura do Servidor: {guild.name}",
+        "",
+        f"*Exportado em: {datetime.now():%d/%m/%Y %H:%M}*",
+        "",
+    ]
+
+    for i, category in enumerate(guild.categories):
+        if i > 0:
+            lines.append("---")
+            lines.append("")
+
+        lines.append(f"## {category.name}")
+        lines.append("")
+
+        for channel in category.channels:
+            if isinstance(channel, discord.TextChannel):
+                if channel.is_news():
+                    lines.append(f"- `#{channel.name}` 📢 *announcement*")
+                else:
+                    lines.append(f"- `#{channel.name}`")
+            elif isinstance(channel, discord.VoiceChannel):
+                lines.append(f"- 🔊 {channel.name}")
+            elif isinstance(channel, discord.ForumChannel):
+                lines.append(f"- `#{channel.name}` 💬 *forum*")
+            elif isinstance(channel, discord.StageChannel):
+                lines.append(f"- 🎤 {channel.name}")
+            else:
+                lines.append(f"- `#{channel.name}` ({channel.type})")
+
+        lines.append("")
+
+    loose = [
+        c
+        for c in guild.channels
+        if not isinstance(c, discord.CategoryChannel) and c.category is None
+    ]
+    if loose:
+        if guild.categories:
+            lines.append("---")
+            lines.append("")
+        lines.append("## 📂 Sem Categoria")
+        lines.append("")
+        for channel in loose:
+            if isinstance(channel, discord.TextChannel):
+                lines.append(f"- `#{channel.name}`")
+            elif isinstance(channel, discord.VoiceChannel):
+                lines.append(f"- 🔊 {channel.name}")
+            elif isinstance(channel, discord.ForumChannel):
+                lines.append(f"- `#{channel.name}` (forum)")
+            elif isinstance(channel, discord.StageChannel):
+                lines.append(f"- 🎤 {channel.name}")
+            else:
+                lines.append(f"- `#{channel.name}` ({channel.type})")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+async def export_structure_fn(interaction: discord.Interaction):
+    await interaction.response.defer(ephemeral=True)
+
+    guild = interaction.guild
+    await guild.fetch_channels()
+
+    safe_name = re.sub(r'[<>:"/\\|?*]', "_", guild.name)
+    folder_path = os.path.join("servers", safe_name)
+    os.makedirs(folder_path, exist_ok=True)
+
+    md_path = os.path.join(folder_path, "estrutura.md")
+    md_content = _build_md_structure(guild)
+    with open(md_path, "w", encoding="utf-8") as f:
+        f.write(md_content)
+
+    json_path = os.path.join(folder_path, "server-template.json")
+    json_content = _build_json_structure(guild)
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(json_content, f, indent=2, ensure_ascii=False)
+
+    await interaction.followup.send(
+        f"✅ Exportado:\n- `{md_path}`\n- `{json_path}`",
+        file=discord.File(md_path),
+        ephemeral=True,
+    )
+
+
 help_cmd = app_commands.Command(
     name="help",
     description="Show available commands and plan format.",
@@ -390,7 +518,20 @@ list_protected_cmd = app_commands.Command(
 )
 list_protected_cmd.default_permissions = discord.Permissions(administrator=True)
 
-bot_cmds = [help_cmd, setup_cmd, protect_cmd, unprotect_cmd, list_protected_cmd]
+export_cmd = app_commands.Command(
+    name="export-structure",
+    description="Export current server structure to a markdown file.",
+    callback=export_structure_fn,
+)
+
+bot_cmds = [
+    help_cmd,
+    setup_cmd,
+    protect_cmd,
+    unprotect_cmd,
+    list_protected_cmd,
+    export_cmd,
+]
 for cmd in bot_cmds:
     client.tree.add_command(cmd)
 
