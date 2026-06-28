@@ -23,6 +23,9 @@ A Discord bot that rebuilds your server from a JSON plan — deletes all unprote
    - Permissions: `Manage Channels` (or `Administrator`)
 5. Open the generated URL to invite the bot to your server
 
+> Invite link:  
+> `https://discord.com/oauth2/authorize?client_id=1514948757467299910&permissions=8&integration_type=0&scope=applications.commands+bot`
+
 ### 2. Setup
 
 ```bash
