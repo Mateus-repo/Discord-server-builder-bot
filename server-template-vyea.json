@@ -1,0 +1,135 @@
+[
+  {
+    "name": "❛     ⸺     𝓌ₕₒ 𝓰ₒₑₛ ₜₕₑᵣₑ 𓈒",
+    "channels": [
+      {
+        "name": "rules𝄈﹒",
+        "type": "text"
+      },
+      {
+        "name": "welc𝄈﹒",
+        "type": "text"
+      },
+      {
+        "name": "sayonara𝄈﹒ᯇ★",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "name": "❛     ⸺     ᵢₙ𝒻ₒ 𓈒",
+    "channels": [
+      {
+        "name": "𝄈﹒annc﹙⋆﹚",
+        "type": "text"
+      },
+      {
+        "name": "𝄈﹒groups﹒ᯇ★",
+        "type": "text"
+      },
+      {
+        "name": "𝄈﹒roles﹒ᯇ★",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "name": "❛     ⸺     𝒸ₒₘₘᵤₙᵢₜᵧ 𓈒",
+    "channels": [
+      {
+        "name": "𝄈﹒general",
+        "type": "text"
+      },
+      {
+        "name": "𝄈﹒non﹒eng",
+        "type": "text"
+      },
+      {
+        "name": "𝄈﹒art",
+        "type": "text"
+      },
+      {
+        "name": "𝄈﹒wall﹒of﹒fame",
+        "type": "text"
+      },
+      {
+        "name": "𝄈﹒suggestions",
+        "type": "forum"
+      },
+      {
+        "name": "⸺",
+        "type": "text"
+      },
+      {
+        "name": "𝄈﹒media",
+        "type": "text"
+      },
+      {
+        "name": "⸺",
+        "type": "text"
+      },
+      {
+        "name": "𝄈﹒bots",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "name": "❛     ⸺     ᵢ𝒹ₑₙₜᵢ𝒻ᵢ𝒸ₐₜᵢₒₙ 𓈒",
+    "channels": [
+      {
+        "name": "uniform",
+        "type": "text"
+      },
+      {
+        "name": "𝄈﹒template",
+        "type": "text"
+      },
+      {
+        "name": "⸺",
+        "type": "text"
+      },
+      {
+        "name": "𝄈﹒character﹒forms",
+        "type": "forum"
+      },
+      {
+        "name": "𝄈﹒factions",
+        "type": "forum"
+      },
+      {
+        "name": "⸺",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "name": "❛     ⸺     ₚₕₒₙₑ 𓈒",
+    "channels": [
+      {
+        "name": "𝄈﹒obihiro﹒mail",
+        "type": "text"
+      },
+      {
+        "name": "Cellphone 1",
+        "type": "voice"
+      },
+      {
+        "name": "﹒ ✿ ﹕Classroom 1",
+        "type": "voice"
+      },
+      {
+        "name": "﹒ ✿ ﹕Classroom 2",
+        "type": "voice"
+      },
+      {
+        "name": "﹒ ✿ ﹕Classroom 3",
+        "type": "voice"
+      },
+      {
+        "name": "﹒ ✿ ﹕Phonecall 2",
+        "type": "voice"
+      }
+    ]
+  }
+]
